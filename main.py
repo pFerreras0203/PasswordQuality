@@ -3,9 +3,19 @@ import string
 
 TAM_MIN = 4
 TAM_MAX = 32
+SIMBOLOS_PADRAO = "!@#$%^&*()-_=+[]{};:,.<>?/"
+
+#spo simbolos validos
+def limpar_simbolos(texto):
+    validos = ""
+    for c in texto:
+        if c.isalnum() or c.isspace() or c in validos:
+            continue
+        validos += c
+    return validos
 
 #gera a senha aleatória
-def gerar_senha(tamanho, minusculas = True, maiusculas = True, numeros = True):
+def gerar_senha(tamanho, minusculas = True, maiusculas = True, numeros = True, simbolos = ""):
     if not TAM_MIN <= tamanho <= TAM_MAX:
         raise ValueError(f"O tamanho deve estar entre {TAM_MIN} e {TAM_MAX}.")
 
@@ -16,6 +26,11 @@ def gerar_senha(tamanho, minusculas = True, maiusculas = True, numeros = True):
         alfabeto += string.ascii_uppercase
     if numeros:
         alfabeto += string.digits
+    if simbolos:
+        validos = limpar_simbolos(simbolos)
+        if not validos:
+            raise ValueError("Nenhum símbolo válido")
+        alfabeto += validos
 
     if not alfabeto:
         raise ValueError("Escolha pelo menos um tipo de caractere.")
@@ -34,7 +49,11 @@ if __name__ == "__main__":
         minusculas = perguntar("Inclui minúsculas (a-z)?")
         maiusculas = perguntar("Inclui maiúsculas (a-z)?")
         numeros = perguntar("Inclui números (0-9)?")
+        simbolos = ""
+        if perguntar("Inclui símbolos?"):
+            simbolos = input(f"Símbolos aceitos (Enter = {SIMBOLOS_PADRAO}): ").strip()
+            simbolos = simbolos or SIMBOLOS_PADRAO
         try:
-            print (gerar_senha(int(texto), minusculas, maiusculas, numeros))
+            print (gerar_senha(int(texto), minusculas, maiusculas, numeros, simbolos))
         except ValueError as erro:
             print (erro)
