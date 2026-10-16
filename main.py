@@ -5,7 +5,7 @@ TAM_MIN = 4
 TAM_MAX = 32
 SIMBOLOS_PADRAO = "!@#$%^&*()-_=+[]{};:,.<>?/"
 
-#spo simbolos validos
+#so simbolos validos
 def limpar_simbolos(texto):
     validos = ""
     for c in texto:
@@ -19,23 +19,29 @@ def gerar_senha(tamanho, minusculas = True, maiusculas = True, numeros = True, s
     if not TAM_MIN <= tamanho <= TAM_MAX:
         raise ValueError(f"O tamanho deve estar entre {TAM_MIN} e {TAM_MAX}.")
 
-    alfabeto = ""
+    grupos = []
     if minusculas:
-        alfabeto += string.ascii_lowercase
+        grupos.append(string.ascii_lowercase)
     if maiusculas:
-        alfabeto += string.ascii_uppercase
+        grupos.append(string.ascii_uppercase)
     if numeros:
-        alfabeto += string.digits
+        grupos.append(string.digits)
     if simbolos:
         validos = limpar_simbolos(simbolos)
         if not validos:
             raise ValueError("Nenhum símbolo válido")
-        alfabeto += validos
+        grupos.append(validos)
 
-    if not alfabeto:
+    if not grupos:
         raise ValueError("Escolha pelo menos um tipo de caractere.")
 
-    return "".join(secrets.choice(alfabeto)for _ in range(tamanho))
+    senha = [secrets.choice(grupo) for grupo in grupos]
+
+    alfabeto = "".join(grupos)
+    senha += [secrets.choice(alfabeto) for _ in range(tamanho - len(senha))]
+
+    secrets.SystemRandom().shuffle(senha)
+    return "".join(senha)
 
 #pergunta sim ou não pra cada caractere
 def perguntar(texto):
