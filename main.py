@@ -1,5 +1,7 @@
 import secrets
 import string
+import math
+import re
 
 TAM_MIN = 4
 TAM_MAX = 32
@@ -43,6 +45,26 @@ def gerar_senha(tamanho, minusculas = True, maiusculas = True, numeros = True, s
     secrets.SystemRandom().shuffle(senha)
     return "".join(senha)
 
+# soma o tamanho de cada tipo de caractere que aparece na senha
+def tamanho_do_alfabeto(senha):
+    n = 0
+    if re.search(r"[a-z]", senha):
+        n += len(string.ascii_lowercase)
+    if re.search(r"[A-Z]", senha):
+        n += len(string.ascii_uppercase)
+    if re.search(r"[0-9]", senha):
+        n += len(string.digits)
+    if re.search(r"[^a-zA-Z0-9]", senha):
+        n += len(string.punctuation)
+    return n
+
+# entropia em bits: H = L * log2(N)
+def calcular_entropia(senha):
+    n = tamanho_do_alfabeto(senha)
+    if n == 0:
+        return 0.0
+    return len(senha) * math.log2(n)
+
 #pergunta sim ou não pra cada caractere
 def perguntar(texto):
     return input(f"{texto} [s/n]: ").strip().lower() != "n"
@@ -60,6 +82,8 @@ if __name__ == "__main__":
             simbolos = input(f"Símbolos aceitos (Enter = {SIMBOLOS_PADRAO}): ").strip()
             simbolos = simbolos or SIMBOLOS_PADRAO
         try:
-            print (gerar_senha(int(texto), minusculas, maiusculas, numeros, simbolos))
+            senha = gerar_senha(int(texto), minusculas, maiusculas, numeros, simbolos)
+            print (senha)
+            print (f"Entropia: {calcular_entropia(senha):.1f} bits")
         except ValueError as erro:
             print (erro)
